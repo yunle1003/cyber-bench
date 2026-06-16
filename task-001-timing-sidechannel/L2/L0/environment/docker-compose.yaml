@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  main:
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+    container_name: "task-001-main"
+    command: ["sh", "-c", "sleep infinity"]
+    depends_on:
+      - timing-service
+    networks: [bench]
+    volumes:
+      - "/app"
+
+  timing-service:
+    build:
+      context: "./assets"
+      dockerfile: "Dockerfile.service"
+    container_name: "task-001-service"
+    expose: ["5000"]
+    networks: [bench]
+    ports:
+      - "8000:5000"
+
+networks:
+  bench:
+    internal: true
