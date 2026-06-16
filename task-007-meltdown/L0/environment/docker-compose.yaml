@@ -1,0 +1,41 @@
+version: '3.8'
+
+networks:
+  bench:
+    internal: true
+
+services:
+  meltdown_service:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.service"
+    container_name: "task-007-meltdown-service"
+    ports:
+      - "5000:5000"
+    networks:
+      - bench
+    environment:
+      - FLASK_APP=meltdown_service.py
+    working_dir: /opt
+    volumes:
+      - ./assets:/opt/verilog
+    command: python3 /opt/assets/meltdown_service.py
+
+  gateway:
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+    container_name: "task-007-gateway"
+    ports:
+      - "8000:8000"
+    networks:
+      - bench
+    depends_on:
+      - meltdown_service
+    environment:
+      - TARGET_HOST=meltdown_service
+      - TARGET_PORT=5000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: python3 gateway.py
