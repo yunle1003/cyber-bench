@@ -22,7 +22,7 @@ module testbench;
     
     initial begin
         rst = 1;
-        secret = 16'h42A5;  // 秘密值
+        secret = 16'h42A5;
         probe_addr = 0;
         flush_req = 0;
         

@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-HTTP service for Cache Flush+Reload timing side-channel
-"""
 from flask import Flask, request, jsonify
 import subprocess
 import tempfile
@@ -12,18 +9,12 @@ app = Flask(__name__)
 
 @app.route('/probe', methods=['POST'])
 def probe_cache():
-    """
-    POST /probe
-    Body: {"addr": <int>, "flush": <bool>}
-    Returns: {"addr": <int>, "timing": <int>}
-    """
     try:
         data = request.get_json()
         probe_addr = data.get('addr', 0)
         do_flush = data.get('flush', False)
         
         with tempfile.TemporaryDirectory() as tmpdir:
-            # 編譯
             compile_result = subprocess.run(
                 ["iverilog", "-o", f"{tmpdir}/sim.out",
                  "/opt/verilog/testbench.v",
@@ -34,7 +25,6 @@ def probe_cache():
             if compile_result.returncode != 0:
                 return jsonify({"error": "Compilation failed"}), 500
             
-            # 運行仿真
             env = os.environ.copy()
             env['PROBE_ADDR'] = str(probe_addr)
             env['FLUSH'] = "1" if do_flush else "0"
@@ -44,7 +34,6 @@ def probe_cache():
                 capture_output=True, text=True, timeout=10, env=env
             )
             
-            # 解析輸出
             timing = 0
             for line in sim_result.stdout.split('\n'):
                 m = re.search(r'TIMING:\s*(\d+)', line)
@@ -57,7 +46,6 @@ def probe_cache():
                 "timing": timing,
                 "flush": do_flush
             })
-    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
