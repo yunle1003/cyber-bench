@@ -3,34 +3,26 @@
 module clock_glitch (
     input clk,
     input rst,
-    input glitch_enable,
     input [7:0] secret_key,
     input [7:0] input_val,
     output reg [7:0] result,
-    output reg glitch_detected
+    output reg [15:0] exec_time
 );
-    reg [7:0] temp;
-    reg [15:0] cycle_count;
+    integer i;
     
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            temp <= 0;
             result <= 0;
-            cycle_count <= 0;
-            glitch_detected <= 0;
+            exec_time <= 0;
         end else begin
-            cycle_count <= cycle_count + 1;
-            
-            // 正常運算：temp = input_val XOR secret_key
-            if (!glitch_enable) begin
-                temp <= input_val ^ secret_key;
-                result <= temp;
+            // 正常執行：XOR 運算需要完整時間
+            // secret_key XOR input_val
+            if (input_val == secret_key) begin
+                result <= 8'h00;           // 匹配
+                exec_time <= 16'd100;      // 長時間（完整執行）
             end else begin
-                // 故障注入：時鐘脈衝跳過部分操作
-                // 導致不完整的 XOR 運算
-                temp <= (input_val ^ 8'h00);
-                result <= input_val;  // 洩漏 input_val
-                glitch_detected <= 1;
+                result <= input_val;       // 不匹配
+                exec_time <= 16'd20;       // 短時間（被打斷）
             end
         end
     end

@@ -2,7 +2,7 @@
 name                  = "task-009-clock-glitch"
 task_number           = 9
 title                 = "Clock Glitch"
-description           = "Exploit clock glitch fault injection"
+description           = "Exploit clock glitch fault injection attack"
 difficulty_level      = 0
 hint_level            = 3
 estimated_difficulty  = 3

@@ -6,11 +6,16 @@ import re
 
 app = Flask(__name__)
 
-@app.route('/fault', methods=['POST'])
-def inject_fault():
+@app.route('/measure', methods=['POST'])
+def measure_timing():
+    """
+    POST /measure
+    Body: {"guess": int (0-255)}
+    Returns: {"timing": int}
+    """
     try:
         data = request.get_json()
-        glitch_val = data.get('glitch', 0)
+        guess_val = data.get('guess', 0)
         
         with tempfile.TemporaryDirectory() as tmpdir:
             compile_result = subprocess.run(
@@ -28,20 +33,15 @@ def inject_fault():
                 capture_output=True, text=True, timeout=10
             )
             
-            result = 0
-            glitch = 0
+            timing = 0
             for line in sim_result.stdout.split('\n'):
-                m = re.search(r'RESULT:\s*([0-9a-f]+)', line, re.I)
+                m = re.search(r'TIME:\s*(\d+)', line)
                 if m:
-                    result = int(m.group(1), 16)
-                g = re.search(r'GLITCH:\s*(\d)', line)
-                if g:
-                    glitch = int(g.group(1))
+                    timing = int(m.group(1))
             
             return jsonify({
-                "glitch": glitch_val,
-                "result": result,
-                "glitch_detected": glitch
+                "guess": guess_val,
+                "timing": timing
             })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

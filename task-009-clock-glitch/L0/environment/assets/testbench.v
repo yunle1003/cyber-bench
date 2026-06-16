@@ -2,19 +2,17 @@
 
 module testbench;
     reg clk, rst;
-    reg glitch_enable;
     reg [7:0] secret_key, input_val;
     wire [7:0] result;
-    wire glitch_detected;
+    wire [15:0] exec_time;
     
     clock_glitch dut (
         .clk(clk),
         .rst(rst),
-        .glitch_enable(glitch_enable),
         .secret_key(secret_key),
         .input_val(input_val),
         .result(result),
-        .glitch_detected(glitch_detected)
+        .exec_time(exec_time)
     );
     
     initial begin
@@ -25,14 +23,12 @@ module testbench;
     initial begin
         rst = 1;
         secret_key = 8'hAA;
-        input_val = 8'h55;
-        glitch_enable = 0;
+        input_val = 8'h00;
         
         #10 rst = 0;
         #100;
         
-        $display("RESULT: %h", result);
-        $display("GLITCH: %b", glitch_detected);
+        $display("TIME: %d", exec_time);
         #10 $finish;
     end
 endmodule
