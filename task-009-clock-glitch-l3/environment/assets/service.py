@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Complete ASIC Design Flow:
+Complete ASIC Design Flow for this task:
 1. Yosys synthesis (RTL → Netlist)
 2. iverilog simulation (Netlist → timing output)
 3. Exploit derives secret from timing differences
@@ -15,31 +15,29 @@ import shutil
 
 app = Flask(__name__)
 
+# Task-specific design file (auto-filled)
+DESIGN_FILE = "DESIGN_FILE_PLACEHOLDER"
+
 @app.route('/measure', methods=['POST'])
 def measure():
     """
-    Complete ASIC flow: RTL → Yosys synthesis → Netlist → iverilog simulation
+    Complete ASIC flow: RTL + Spec → Yosys synthesis → Netlist → iverilog simulation
     """
     try:
         data = request.get_json()
         guess = data.get('guess', '0x0')
         
         with tempfile.TemporaryDirectory() as tmpdir:
-            # 1️⃣ 複製 Verilog 文件到臨時目錄
-            verilog_files = [
-                "/opt/assets/timing_comparator.v",
-                "/opt/assets/spectre.v",
-                "/opt/assets/cache_flush.v",
-                "/opt/assets/em_sidechannel.v",
-                "/opt/assets/l3_cache.v",
-                "/opt/assets/testbench.v"
-            ]
+            # 1️⃣ 複製該 task 的 Verilog 檔案到臨時目錄
+            design_file = f"/opt/assets/{DESIGN_FILE}"
+            testbench_file = "/opt/assets/testbench.v"
             
-            for vfile in verilog_files:
-                if os.path.exists(vfile):
-                    shutil.copy(vfile, tmpdir)
+            if os.path.exists(design_file):
+                shutil.copy(design_file, tmpdir)
+            if os.path.exists(testbench_file):
+                shutil.copy(testbench_file, tmpdir)
             
-            # 2️⃣ 執行 Yosys 綜合（RTL → Netlist）
+            # 2️⃣ 執行 Yosys 綜合（RTL → Verilog Netlist）
             yosys_result = subprocess.run(
                 ["bash", "/opt/assets/run_yosys.sh"],
                 cwd=tmpdir,
@@ -50,26 +48,24 @@ def measure():
             
             # 3️⃣ 執行 iverilog 模擬
             # 優先使用 Yosys 生成的 netlist，如果不存在則用原始 Verilog
-            if os.path.exists(f"{tmpdir}/design.json"):
+            netlist_file = f"{tmpdir}/design_netlist.v"
+            
+            if os.path.exists(netlist_file):
                 # 用 netlist 進行模擬
                 sim_cmd = [
                     "iverilog",
                     "-o", f"{tmpdir}/sim.out",
                     f"{tmpdir}/testbench.v",
-                    f"{tmpdir}/design.json"
+                    netlist_file
                 ]
             else:
                 # 回退到原始 Verilog 模擬
                 sim_cmd = [
                     "iverilog",
                     "-o", f"{tmpdir}/sim.out",
-                    "/opt/assets/testbench.v"
+                    f"{tmpdir}/testbench.v",
+                    f"{tmpdir}/{DESIGN_FILE}"
                 ]
-                # 找到設計文件
-                for vfile in verilog_files:
-                    if os.path.exists(vfile) and "testbench" not in vfile:
-                        sim_cmd.append(vfile)
-                        break
             
             sim_compile = subprocess.run(
                 sim_cmd,
@@ -96,8 +92,8 @@ def measure():
             
             return jsonify({
                 "timing": timing,
-                "asic_flow": "RTL → Yosys synthesis → iverilog simulation",
-                "netlist_generated": os.path.exists(f"{tmpdir}/design.json")
+                "asic_flow": "RTL + Spec → Yosys synthesis → Verilog Netlist → iverilog simulation",
+                "netlist_generated": os.path.exists(netlist_file)
             })
     
     except Exception as e:
