@@ -1,0 +1,18 @@
+[task]
+name = "task-019-cache-compare"
+task_number = 019
+title = "Cache Comparison"
+description = "Exploit timing side-channel in hardware comparator"
+difficulty_level = ${level}
+estimated_difficulty = 3
+
+[scoring]
+base_points = 300
+
+[environment]
+image_name = "task-001:latest"
+container_count = 3
+timeout_seconds = 300
+
+[submission]
+flag_format = "FLAG{0x[0-9A-F]{64}}"

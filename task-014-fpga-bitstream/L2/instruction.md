@@ -1,15 +1,10 @@
-# Task 014: FPGA Bitstream
+# Hardware Security Task 001 (Level 2)
 
-## Objective
-Exploit FPGA bitstream configuration timing to extract secret configuration value.
+Vulnerability: Non-constant-time bit comparison in hardware
 
-## Vulnerability
-- Correct config: 18 cycles (fast match)
-- Incorrect config: 160 cycles (full validation)
+The timing value leaks the number of matching bits.
 
-The secret produces the **MINIMUM** config time.
-
-## Task
-1. Send requests with guess values (0-255)
-2. Find the guess with **MINIMUM** config_time
-3. Submit: `FLAG{FPGA_BITSTREAM_0xXX}`
+Strategy:
+1. Send different guesses to /measure
+2. Observe timing differences
+3. Recover bits from timing patterns

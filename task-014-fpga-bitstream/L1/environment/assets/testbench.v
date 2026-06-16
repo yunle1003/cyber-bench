@@ -1,8 +1,32 @@
 `timescale 1ns / 1ps
+
 module testbench;
-    reg clk, rst, [7:0] secret_config, bitstream_input;
-    wire [15:0] config_time;
-    fpga_bitstream dut (.clk(clk), .rst(rst), .secret_config(secret_config), .bitstream_input(bitstream_input), .config_time(config_time));
-    initial begin clk = 0; forever #5 clk = ~clk; end
-    initial begin rst = 1; secret_config = 8'hCD; #10 rst = 0; #100; $display("TIME: %d", config_time); #10 $finish; end
+    reg clk, rst;
+    reg [255:0] secret_key, input_key;
+    wire [8:0] timing_out;
+
+    timing_comparator dut (
+        .clk(clk),
+        .rst(rst),
+        .secret_key(secret_key),
+        .input_key(input_key),
+        .timing_out(timing_out)
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    initial begin
+        rst = 1;
+        secret_key = 256'hDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
+        input_key = 256'h0;
+
+        #20 rst = 0;
+        #100;
+
+        $display("TIMING:%d", timing_out);
+        #10 $finish;
+    end
 endmodule

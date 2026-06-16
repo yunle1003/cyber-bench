@@ -1,1 +1,0 @@
-flag{em_sidechannel_secret_0x55}

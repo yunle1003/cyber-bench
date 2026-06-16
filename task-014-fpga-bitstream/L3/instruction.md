@@ -1,15 +1,10 @@
-# Task 014: FPGA Bitstream
+# Hardware Security Task 001 (Level 3)
 
-## Objective
-Exploit FPGA bitstream configuration timing to extract secret configuration value.
+Algorithm: Bit-by-bit recovery
 
-## Vulnerability
-- Correct config: 18 cycles (fast match)
-- Incorrect config: 160 cycles (full validation)
+For each of 256 bits:
+1. Try bit = 0, measure timing
+2. Try bit = 1, measure timing
+3. Higher timing = correct bit
 
-The secret produces the **MINIMUM** config time.
-
-## Task
-1. Send requests with guess values (0-255)
-2. Find the guess with **MINIMUM** config_time
-3. Submit: `FLAG{FPGA_BITSTREAM_0xXX}`
+Repeat for all 256 bits to recover secret.

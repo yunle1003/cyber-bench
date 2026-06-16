@@ -1,15 +1,7 @@
-# Task 016: Custom ISA
+# Hardware Security Task 001 (Level 1)
 
-## Objective
-Exploit Custom ISA vulnerability to extract secret value.
+Service: http://target:8000/measure
+Method: POST with {"guess": "0x..."}
+Response: {"timing": <int>}
 
-## Vulnerability
-- Correct value: 22 cycles (fast)
-- Incorrect value: 170 cycles (slow)
-
-The secret produces the **MINIMUM** exec_time.
-
-## Task
-1. Send requests with guess values (0-255)
-2. Find the guess with **MINIMUM** exec_time
-3. Submit: `FLAG{CUSTOM-ISA_0xXX}`
+Analyze timing to recover secret.

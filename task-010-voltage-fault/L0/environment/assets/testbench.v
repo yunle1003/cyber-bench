@@ -1,9 +1,32 @@
 `timescale 1ns / 1ps
+
 module testbench;
     reg clk, rst;
-    reg [7:0] secret_val, test_val;
-    wire [15:0] exec_time;
-    clock_glitch dut (.clk(clk), .rst(rst), .secret_key(secret_val), .input_val(test_val), .exec_time(exec_time));
-    initial begin clk = 0; forever #5 clk = ~clk; end
-    initial begin rst = 1; secret_val = 8'h77; test_val = 8'h00; #10 rst = 0; #100; $display("TIME: %d", exec_time); #10 $finish; end
+    reg [255:0] secret_key, input_key;
+    wire [8:0] timing_out;
+
+    timing_comparator dut (
+        .clk(clk),
+        .rst(rst),
+        .secret_key(secret_key),
+        .input_key(input_key),
+        .timing_out(timing_out)
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    initial begin
+        rst = 1;
+        secret_key = 256'hDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
+        input_key = 256'h0;
+
+        #20 rst = 0;
+        #100;
+
+        $display("TIMING:%d", timing_out);
+        #10 $finish;
+    end
 endmodule

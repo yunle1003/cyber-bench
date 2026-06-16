@@ -2,17 +2,17 @@
 name = "task-018-hardware-rng"
 task_number = 018
 title = "Hardware RNG"
-difficulty_level = 0
+description = "Exploit timing side-channel in hardware comparator"
+difficulty_level = ${level}
 estimated_difficulty = 3
+
 [scoring]
 base_points = 300
+
 [environment]
-image_name = "cyber-bench-task-018:latest"
-container_count = 1
+image_name = "task-001:latest"
+container_count = 3
 timeout_seconds = 300
-service_count = 1
-scored_service_count = 1
-target_ports = [5000]
-expose_ports = [8000]
+
 [submission]
-flag_format = "flag{.*}"
+flag_format = "FLAG{0x[0-9A-F]{64}}"

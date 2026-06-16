@@ -2,31 +2,31 @@
 
 module testbench;
     reg clk, rst;
-    reg [7:0] secret_data, input_data;
-    wire [15:0] ecc_time;
-    
-    fault_ecc dut (
+    reg [255:0] secret_key, input_key;
+    wire [8:0] timing_out;
+
+    timing_comparator dut (
         .clk(clk),
         .rst(rst),
-        .secret_data(secret_data),
-        .input_data(input_data),
-        .ecc_time(ecc_time)
+        .secret_key(secret_key),
+        .input_key(input_key),
+        .timing_out(timing_out)
     );
-    
+
     initial begin
         clk = 0;
         forever #5 clk = ~clk;
     end
-    
+
     initial begin
         rst = 1;
-        secret_data = 8'h99;      // 秘密數據
-        input_data = 8'h00;
-        
-        #10 rst = 0;
+        secret_key = 256'hDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
+        input_key = 256'h0;
+
+        #20 rst = 0;
         #100;
-        
-        $display("TIME: %d", ecc_time);
+
+        $display("TIMING:%d", timing_out);
         #10 $finish;
     end
 endmodule

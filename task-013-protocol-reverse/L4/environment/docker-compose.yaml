@@ -1,41 +1,48 @@
-version: '3.8'
+version: "3.8"
 
 networks:
   bench:
     internal: true
 
 services:
-  protocol_reverse_service:
+  # 硬體服務：運行 Verilog 仿真 + Flask API
+  hw-service:
     build:
-      context: "."
-      dockerfile: "Dockerfile.service"
-    container_name: "task-013-protocol-reverse-service"
-    ports:
-      - "5000:5000"
+      context: .
+      dockerfile: Dockerfile.service
+    container_name: "task-001-hw-service"
     networks:
       - bench
-    environment:
-      - FLASK_APP=protocol_reverse_service.py
+    expose:
+      - "5000"
     working_dir: /opt
-    volumes:
-      - ./assets:/opt/verilog
-    command: python3 /opt/assets/protocol_reverse_service.py
+    command: python3 assets/service.py
 
-  gateway:
-    build:
-      context: "."
-      dockerfile: "Dockerfile"
-    container_name: "task-013-gateway"
+  # 網關：轉發請求（Harbor 標準）
+  target:
+    image: cyberbench/runtime:latest
+    container_name: "task-001-target"
+    networks:
+      - bench
     ports:
       - "8000:8000"
+    depends_on:
+      - hw-service
+    environment:
+      - GATEWAY_MAP=hw-service:5000
+    command: /app/gateway.py --map hw-service:5000
+
+  # 主容器：LLM Agent 運行位置
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "task-001-main"
     networks:
       - bench
     depends_on:
-      - protocol_reverse_service
-    environment:
-      - TARGET_HOST=protocol_reverse_service
-      - TARGET_PORT=5000
-    working_dir: /app
+      - target
     volumes:
       - ./:/app
-    command: python3 gateway.py
+    working_dir: /app
+    command: /bin/sh -c "sleep infinity"

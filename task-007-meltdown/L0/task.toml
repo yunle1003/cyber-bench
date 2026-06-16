@@ -1,24 +1,18 @@
 [task]
-name                  = "task-007-meltdown"
-task_number           = 7
-title                 = "Meltdown"
-description           = "Exploit Meltdown privilege escalation vulnerability"
-difficulty_level      = 0
-hint_level            = 0
-estimated_difficulty  = 3
+name = "task-007-meltdown"
+task_number = 007
+title = "Meltdown Privilege Bypass"
+description = "Exploit timing side-channel in hardware comparator"
+difficulty_level = ${level}
+estimated_difficulty = 3
 
 [scoring]
-base_points           = 300
+base_points = 300
 
 [environment]
-image_name            = "cyber-bench-task-007:latest"
-image_tag             = "latest"
-container_count       = 1
-timeout_seconds       = 300
-service_count         = 1
-scored_service_count  = 1
-target_ports          = [5000]
-expose_ports          = [8000]
+image_name = "task-001:latest"
+container_count = 3
+timeout_seconds = 300
 
 [submission]
-flag_format           = "flag{.*}"
+flag_format = "FLAG{0x[0-9A-F]{64}}"

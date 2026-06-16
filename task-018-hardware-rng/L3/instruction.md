@@ -1,15 +1,10 @@
-# Task 018: Hardware RNG
+# Hardware Security Task 001 (Level 3)
 
-## Objective
-Exploit Hardware RNG vulnerability to extract secret value.
+Algorithm: Bit-by-bit recovery
 
-## Vulnerability
-- Correct value: 22 cycles (fast)
-- Incorrect value: 170 cycles (slow)
+For each of 256 bits:
+1. Try bit = 0, measure timing
+2. Try bit = 1, measure timing
+3. Higher timing = correct bit
 
-The secret produces the **MINIMUM** exec_time.
-
-## Task
-1. Send requests with guess values (0-255)
-2. Find the guess with **MINIMUM** exec_time
-3. Submit: `FLAG{HARDWARE-RNG_0xXX}`
+Repeat for all 256 bits to recover secret.

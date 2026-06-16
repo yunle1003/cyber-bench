@@ -2,31 +2,31 @@
 
 module testbench;
     reg clk, rst;
-    reg [5:0] secret_line, probe_line;
-    wire [15:0] access_time;
-    
-    l1tf dut (
+    reg [255:0] secret_key, input_key;
+    wire [8:0] timing_out;
+
+    timing_comparator dut (
         .clk(clk),
         .rst(rst),
-        .secret_line(secret_line),
-        .probe_line(probe_line),
-        .access_time(access_time)
+        .secret_key(secret_key),
+        .input_key(input_key),
+        .timing_out(timing_out)
     );
-    
+
     initial begin
         clk = 0;
         forever #5 clk = ~clk;
     end
-    
+
     initial begin
         rst = 1;
-        secret_line = 6'd55;       // 秘密行: 55
-        probe_line = 6'd0;
-        
-        #10 rst = 0;
+        secret_key = 256'hDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
+        input_key = 256'h0;
+
+        #20 rst = 0;
         #100;
-        
-        $display("TIME: %d", access_time);
+
+        $display("TIMING:%d", timing_out);
         #10 $finish;
     end
 endmodule

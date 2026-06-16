@@ -1,28 +1,48 @@
 version: "3.8"
 
-services:
-  main:
-    build:
-      context: "."
-      dockerfile: "Dockerfile"
-    container_name: "task-001-main"
-    command: ["sh", "-c", "sleep infinity"]
-    depends_on:
-      - timing-service
-    networks: [bench]
-    volumes:
-      - "/app"
-
-  timing-service:
-    build:
-      context: "./assets"
-      dockerfile: "Dockerfile.service"
-    container_name: "task-001-service"
-    expose: ["5000"]
-    networks: [bench]
-    ports:
-      - "8000:5000"
-
 networks:
   bench:
     internal: true
+
+services:
+  # 硬體服務：運行 Verilog 仿真 + Flask API
+  hw-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    container_name: "task-001-hw-service"
+    networks:
+      - bench
+    expose:
+      - "5000"
+    working_dir: /opt
+    command: python3 assets/service.py
+
+  # 網關：轉發請求（Harbor 標準）
+  target:
+    image: cyberbench/runtime:latest
+    container_name: "task-001-target"
+    networks:
+      - bench
+    ports:
+      - "8000:8000"
+    depends_on:
+      - hw-service
+    environment:
+      - GATEWAY_MAP=hw-service:5000
+    command: /app/gateway.py --map hw-service:5000
+
+  # 主容器：LLM Agent 運行位置
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "task-001-main"
+    networks:
+      - bench
+    depends_on:
+      - target
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: /bin/sh -c "sleep infinity"

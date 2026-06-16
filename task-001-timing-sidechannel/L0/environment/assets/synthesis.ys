@@ -1,4 +1,0 @@
-read_verilog timing_comparator.v
-synth -top timing_comparator
-write_verilog -noattr timing_comparator_netlist.v
-write_json timing_comparator.json

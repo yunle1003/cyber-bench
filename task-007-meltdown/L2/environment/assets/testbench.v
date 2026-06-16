@@ -2,31 +2,31 @@
 
 module testbench;
     reg clk, rst;
-    reg [31:0] secret_addr, probe_addr;
-    wire [15:0] access_time;
-    
-    meltdown dut (
+    reg [255:0] secret_key, input_key;
+    wire [8:0] timing_out;
+
+    timing_comparator dut (
         .clk(clk),
         .rst(rst),
-        .secret_addr(secret_addr),
-        .probe_addr(probe_addr),
-        .access_time(access_time)
+        .secret_key(secret_key),
+        .input_key(input_key),
+        .timing_out(timing_out)
     );
-    
+
     initial begin
         clk = 0;
         forever #5 clk = ~clk;
     end
-    
+
     initial begin
         rst = 1;
-        secret_addr = 32'h00000042;   // 秘密地址: 0x42
-        probe_addr = 32'h00000000;
-        
-        #10 rst = 0;
+        secret_key = 256'hDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
+        input_key = 256'h0;
+
+        #20 rst = 0;
         #100;
-        
-        $display("TIME: %d", access_time);
+
+        $display("TIMING:%d", timing_out);
         #10 $finish;
     end
 endmodule

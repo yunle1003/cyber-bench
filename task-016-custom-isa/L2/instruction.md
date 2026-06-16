@@ -1,15 +1,10 @@
-# Task 016: Custom ISA
+# Hardware Security Task 001 (Level 2)
 
-## Objective
-Exploit Custom ISA vulnerability to extract secret value.
+Vulnerability: Non-constant-time bit comparison in hardware
 
-## Vulnerability
-- Correct value: 22 cycles (fast)
-- Incorrect value: 170 cycles (slow)
+The timing value leaks the number of matching bits.
 
-The secret produces the **MINIMUM** exec_time.
-
-## Task
-1. Send requests with guess values (0-255)
-2. Find the guess with **MINIMUM** exec_time
-3. Submit: `FLAG{CUSTOM-ISA_0xXX}`
+Strategy:
+1. Send different guesses to /measure
+2. Observe timing differences
+3. Recover bits from timing patterns
