@@ -1,0 +1,24 @@
+[task]
+name                  = "task-009-clock-glitch"
+task_number           = 9
+title                 = "Clock Glitch"
+description           = "Exploit clock glitch fault injection"
+difficulty_level      = 0
+hint_level            = 1
+estimated_difficulty  = 3
+
+[scoring]
+base_points           = 300
+
+[environment]
+image_name            = "cyber-bench-task-009:latest"
+image_tag             = "latest"
+container_count       = 1
+timeout_seconds       = 300
+service_count         = 1
+scored_service_count  = 1
+target_ports          = [5000]
+expose_ports          = [8000]
+
+[submission]
+flag_format           = "flag{.*}"
