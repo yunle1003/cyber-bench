@@ -1,0 +1,24 @@
+[task]
+name                  = "task-005-cache-timing"
+task_number           = 5
+title                 = "L3 Cache Timing Attack"
+description           = "Exploit L3 cache timing differences"
+difficulty_level      = 0
+hint_level            = 4
+estimated_difficulty  = 3
+
+[scoring]
+base_points           = 300
+
+[environment]
+image_name            = "cyber-bench-task-005:latest"
+image_tag             = "latest"
+container_count       = 1
+timeout_seconds       = 300
+service_count         = 1
+scored_service_count  = 1
+target_ports          = [5000]
+expose_ports          = [8000]
+
+[submission]
+flag_format           = "flag{.*}"
