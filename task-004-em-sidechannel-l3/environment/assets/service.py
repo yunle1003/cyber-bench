@@ -1,37 +1,34 @@
 #!/usr/bin/env python3
+"""Task 004: EM Side-Channel - Power analysis"""
+
 from flask import Flask, request, jsonify
-import subprocess
-import tempfile
-import re
 
 app = Flask(__name__)
 
+# 秘密：8 字節
+SECRET = 0xdeadbeefcafebabe
+
 @app.route('/measure', methods=['POST'])
 def measure():
+    """
+    EM Side-Channel: Measure power consumption
+    Input: {guess}
+    Output: {power}
+    """
     try:
         data = request.get_json()
-        guess = data.get('guess', '0x0')
+        guess_str = data.get('guess', '0x0')
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            subprocess.run(
-                ["iverilog", "-o", f"{tmpdir}/sim.out",
-                 "/opt/assets/testbench.v",
-                 "/opt/assets/timing_comparator.v"],
-                capture_output=True, timeout=10
-            )
-            
-            result = subprocess.run(
-                [f"{tmpdir}/sim.out"],
-                capture_output=True, text=True, timeout=10
-            )
-            
-            timing = 0
-            for line in result.stdout.split('\n'):
-                m = re.search(r'TIMING:(\d+)', line)
-                if m:
-                    timing = int(m.group(1))
-            
-            return jsonify({"timing": timing})
+        # 轉換 hex 字符串為整數
+        guess = int(guess_str, 16) if isinstance(guess_str, str) else guess_str
+        
+        # 計算匹配位數
+        power = 0
+        for i in range(64):
+            if ((SECRET >> i) & 1) == ((guess >> i) & 1):
+                power += 100  # 每個匹配位增加 100 單位功率
+        
+        return jsonify({"power": power})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

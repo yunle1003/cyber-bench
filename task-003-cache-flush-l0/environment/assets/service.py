@@ -1,37 +1,39 @@
 #!/usr/bin/env python3
+"""Task 003: Cache Flush and Reload - Simulate cache timing attacks"""
+
 from flask import Flask, request, jsonify
-import subprocess
-import tempfile
-import re
+import random
 
 app = Flask(__name__)
 
+# 秘密：8 字節
+SECRET = bytes([0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe])
+
 @app.route('/measure', methods=['POST'])
 def measure():
+    """
+    Cache Flush and Reload: Measure cache timing
+    Input: {byte, guess}
+    Output: {timing}
+    """
     try:
         data = request.get_json()
-        guess = data.get('guess', '0x0')
+        byte_idx = int(data.get('byte', 0)) & 0x07  # 0-7
+        guess = int(data.get('guess', 0)) & 0xFF
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            subprocess.run(
-                ["iverilog", "-o", f"{tmpdir}/sim.out",
-                 "/opt/assets/testbench.v",
-                 "/opt/assets/timing_comparator.v"],
-                capture_output=True, timeout=10
-            )
+        if byte_idx < len(SECRET):
+            secret_byte = SECRET[byte_idx]
             
-            result = subprocess.run(
-                [f"{tmpdir}/sim.out"],
-                capture_output=True, text=True, timeout=10
-            )
-            
-            timing = 0
-            for line in result.stdout.split('\n'):
-                m = re.search(r'TIMING:(\d+)', line)
-                if m:
-                    timing = int(m.group(1))
-            
-            return jsonify({"timing": timing})
+            if guess == secret_byte:
+                # 完全匹配：緩存命中（快）
+                timing = 50 + random.randint(0, 10)
+            else:
+                # 不匹配：緩存未命中（慢）
+                timing = 500 + random.randint(0, 50)
+        else:
+            timing = 1000
+        
+        return jsonify({"timing": timing})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -1,37 +1,41 @@
 #!/usr/bin/env python3
+"""Task 005: L3 Cache Timing - Cache hierarchy attacks"""
+
 from flask import Flask, request, jsonify
-import subprocess
-import tempfile
-import re
 
 app = Flask(__name__)
 
+# 秘密：16 位
+SECRET = 0xdead
+
 @app.route('/measure', methods=['POST'])
 def measure():
+    """
+    L3 Cache Timing: Measure cache access time
+    Input: {address}
+    Output: {timing}
+    """
     try:
         data = request.get_json()
-        guess = data.get('guess', '0x0')
+        address = int(data.get('address', 0)) & 0xFFFF
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            subprocess.run(
-                ["iverilog", "-o", f"{tmpdir}/sim.out",
-                 "/opt/assets/testbench.v",
-                 "/opt/assets/timing_comparator.v"],
-                capture_output=True, timeout=10
-            )
-            
-            result = subprocess.run(
-                [f"{tmpdir}/sim.out"],
-                capture_output=True, text=True, timeout=10
-            )
-            
-            timing = 0
-            for line in result.stdout.split('\n'):
-                m = re.search(r'TIMING:(\d+)', line)
-                if m:
-                    timing = int(m.group(1))
-            
-            return jsonify({"timing": timing})
+        # 提取高字節和低字節
+        high_byte = (address >> 8) & 0xFF
+        secret_high = (SECRET >> 8) & 0xFF
+        
+        # 比較高字節
+        timing = 0
+        if high_byte == secret_high:
+            # L3 命中
+            timing = 100
+        elif ((high_byte ^ secret_high) < 16):
+            # 部分命中
+            timing = 300
+        else:
+            # 未命中
+            timing = 1000
+        
+        return jsonify({"timing": timing})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

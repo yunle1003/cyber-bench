@@ -1,37 +1,44 @@
 #!/usr/bin/env python3
+"""Task 002: Spectre V1 Service - Simulate speculative execution timing"""
+
 from flask import Flask, request, jsonify
 import subprocess
 import tempfile
 import re
+import os
 
 app = Flask(__name__)
 
+# 秘密值（在實際場景中應該隨機生成或從環境讀取）
+SECRET = b'\xde\xad\xbe\xef\xca\xfe\xba\xbe'
+
 @app.route('/measure', methods=['POST'])
 def measure():
+    """
+    Spectre V1: Measure timing for speculative execution
+    Input: {index, probe}
+    Output: {timing}
+    """
     try:
         data = request.get_json()
-        guess = data.get('guess', '0x0')
+        index = int(data.get('index', 0)) & 0xFF
+        probe = int(data.get('probe', 0)) & 0xFF
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            subprocess.run(
-                ["iverilog", "-o", f"{tmpdir}/sim.out",
-                 "/opt/assets/testbench.v",
-                 "/opt/assets/timing_comparator.v"],
-                capture_output=True, timeout=10
-            )
-            
-            result = subprocess.run(
-                [f"{tmpdir}/sim.out"],
-                capture_output=True, text=True, timeout=10
-            )
-            
-            timing = 0
-            for line in result.stdout.split('\n'):
-                m = re.search(r'TIMING:(\d+)', line)
-                if m:
-                    timing = int(m.group(1))
-            
-            return jsonify({"timing": timing})
+        # 模擬推測執行計時
+        # 如果 probe 值與秘密[index] 匹配，會有緩存命中（快）
+        timing = 0
+        
+        if index < len(SECRET):
+            secret_byte = SECRET[index]
+            # 計時取決於推測執行是否命中
+            if probe == secret_byte:
+                timing = 50  # 緩存命中（快）
+            else:
+                # 計時基於漢明距離（位不同數）
+                diff = bin(probe ^ secret_byte).count('1')
+                timing = 500 - (diff * 20)  # 更多匹配位 = 更短的計時
+        
+        return jsonify({"timing": timing})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
