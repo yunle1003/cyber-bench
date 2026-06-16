@@ -1,0 +1,1 @@
+FLAG{WEAK_ECC_0x34}
