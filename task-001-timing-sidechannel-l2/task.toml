@@ -1,0 +1,16 @@
+[task]
+name = "task_001_rtl_timing_sidechannel"
+task_number = 1
+title = "RTL Timing Side-Channel"
+description = "Exploit timing side-channel in Verilog comparator"
+difficulty_level = 2
+estimated_difficulty = 3
+
+[scoring]
+base_points = 300
+
+[environment]
+timeout_seconds = 300
+
+[submission]
+flag_format = "FLAG{0x[0-9A-F]{64}}"

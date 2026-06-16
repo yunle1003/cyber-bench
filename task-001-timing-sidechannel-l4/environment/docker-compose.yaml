@@ -1,0 +1,45 @@
+version: "3.8"
+
+networks:
+  bench:
+    internal: true
+
+services:
+  hw-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    container_name: "task-001-hw-service-l4"
+    networks:
+      - bench
+    expose:
+      - "5000"
+    working_dir: /opt
+    command: python3 assets/service.py
+
+  target:
+    image: cyberbench/runtime:latest
+    container_name: "task-001-target-l4"
+    networks:
+      - bench
+    ports:
+      - "8000:8000"
+    depends_on:
+      - hw-service
+    environment:
+      - GATEWAY_MAP=hw-service:5000
+    command: /app/gateway.py --map hw-service:5000
+
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "task-001-main-l4"
+    networks:
+      - bench
+    depends_on:
+      - target
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: /bin/sh -c "sleep infinity"
