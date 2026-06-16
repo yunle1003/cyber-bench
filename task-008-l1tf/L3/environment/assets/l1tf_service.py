@@ -6,11 +6,16 @@ import re
 
 app = Flask(__name__)
 
-@app.route('/fault', methods=['POST'])
-def fault_access():
+@app.route('/measure', methods=['POST'])
+def measure_timing():
+    """
+    POST /measure
+    Body: {"probe": int (0-63)}
+    Returns: {"timing": int}
+    """
     try:
         data = request.get_json()
-        probe_val = data.get('addr', 0)
+        probe_val = data.get('probe', 0)
         
         with tempfile.TemporaryDirectory() as tmpdir:
             compile_result = subprocess.run(
@@ -35,7 +40,7 @@ def fault_access():
                     timing = int(m.group(1))
             
             return jsonify({
-                "addr": probe_val,
+                "probe": probe_val,
                 "timing": timing
             })
     except Exception as e:

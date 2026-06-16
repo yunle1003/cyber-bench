@@ -2,16 +2,14 @@
 
 module testbench;
     reg clk, rst;
-    reg [31:0] target_addr, probe_addr;
-    wire [31:0] faulted_data;
+    reg [5:0] secret_line, probe_line;
     wire [15:0] access_time;
     
     l1tf dut (
         .clk(clk),
         .rst(rst),
-        .target_addr(target_addr),
-        .probe_addr(probe_addr),
-        .faulted_data(faulted_data),
+        .secret_line(secret_line),
+        .probe_line(probe_line),
         .access_time(access_time)
     );
     
@@ -22,8 +20,8 @@ module testbench;
     
     initial begin
         rst = 1;
-        target_addr = 32'h00000037;
-        probe_addr = 32'h00000000;
+        secret_line = 6'd55;       // 秘密行: 55
+        probe_line = 6'd0;
         
         #10 rst = 0;
         #100;
