@@ -1,0 +1,10 @@
+schema_version = "1.1"
+
+[task]
+name        = "cyber-bench/task_010_voltage-fault_l2"
+description = "Voltage Fault (hint level 2)"
+authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
+keywords    = ["cybersecurity", "ctf", "hardware"]
+
+[metadata]
+category    = "cybersecurity"
