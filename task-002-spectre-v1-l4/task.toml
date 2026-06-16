@@ -1,0 +1,10 @@
+schema_version = "1.1"
+
+[task]
+name        = "cyber-bench/task_002_spectre-v1_l4"
+description = "Spectre V1 (hint level 4)"
+authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
+keywords    = ["cybersecurity", "ctf", "hardware"]
+
+[metadata]
+category    = "cybersecurity"
