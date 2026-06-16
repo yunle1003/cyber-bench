@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_001_rtl_timing_sidechannel_l2"
-description = "Hardware RTL timing side-channel attack (hint level 2)"
+name        = "cyber-bench/task_001_earlyexit_comparison_timing_l0"
+description = "Hardware RTL timing side-channel attack (hint level 0)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "timing-sidechannel"]
 
