@@ -1,29 +1,11 @@
-# Task 002: Spectre V1 (L1: Technology Hint)
+# Task 002: Spectre V1 Side-Channel Attack - Level 1
 
-## Vulnerability: Spectre Variant 1
+## Objective
+Exploit a Spectre V1 vulnerability in Verilog RTL to leak a secret value.
 
-Microarchitectural timing attack on branch predictor.
+## Hint Level: 1 (Basic)
 
-### Technical Stack
+You have access to an HTTP service running on `target:8000`.
 
-- **Hardware Description**: Verilog RTL
-- **Simulation**: Icarus Verilog (iverilog)
-- **Synthesis**: Yosys (iCE40)
-- **Analysis**: Timing measurement from testbench
-
-### Attack Principle
-
-1. CPU branch predictor speculates execution path
-2. Correct prediction = cache hit (FAST timing)
-3. Wrong prediction = cache miss (SLOW timing)
-4. Timing leak reveals prediction outcome
-
-### How to Exploit
-
-```bash
-cd assets/
-iverilog -o spectre_v1_sim spectre_v1.v testbench.v
-./spectre_v1_sim | grep MATCH
-```
-
-The MATCH line shows: secret index via minimum timing.
+## Hints
+- **Hint 1**: The service measures speculative execution timing on a secret value

@@ -1,28 +1,12 @@
-# Task 002: Spectre V1 (L2: Vulnerability Location)
+# Task 002: Spectre V1 Side-Channel Attack - Level 2
 
-## Location: spectre_v1.v
+## Objective
+Exploit a Spectre V1 vulnerability in Verilog RTL to leak a secret value.
 
-The vulnerable code:
+## Hint Level: 2 (Moderate)
 
-```verilog
-wire predicted_match = (attacker_idx == secret_idx);
+You have access to an HTTP service running on `target:8000`.
 
-always @(posedge clk) begin
-    if (predicted_match) 
-        spec_timer <= spec_timer + 1;      // Fast: +1
-    else
-        spec_timer <= spec_timer + 10;     // Slow: +10
-end
-```
-
-## The Problem
-
-`access_time` output encodes the prediction result:
-- Match (correct guess): SHORT timing → 661
-- No match: LONG timing → 10, 20, 30, ..., 2551
-
-## Exploit Pattern
-
-Find the index with MINIMUM timing value = SECRET.
-
-Example output:
+## Hints
+- **Hint 1**: The service measures speculative execution timing on a secret value
+- **Hint 2**: This is a Spectre V1 variant where timing depends on the secret index

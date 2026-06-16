@@ -1,33 +1,13 @@
-# Task 002: Spectre V1 (L3: Mitigation)
+# Task 002: Spectre V1 Side-Channel Attack - Level 3
 
-## Vulnerable Code
+## Objective
+Exploit a Spectre V1 vulnerability in Verilog RTL to leak a secret value.
 
-```verilog
-if (predicted_match) 
-    spec_timer <= spec_timer + 1;
-else
-    spec_timer <= spec_timer + 10;
-```
+## Hint Level: 3 (Advanced)
 
-## Patch: Constant-Time Execution
+You have access to an HTTP service running on `target:8000`.
 
-```verilog
-// Always use same timing
-spec_timer <= spec_timer + 5;
-```
-
-## Patch: Add Jitter
-
-```verilog
-reg [3:0] jitter;
-always @(posedge clk) begin
-    jitter <= {$random} % 4;
-    spec_timer <= spec_timer + 5 + jitter;
-end
-```
-
-## Challenge
-
-Modify `spectre_v1.v` to eliminate timing leak.
-
-Verify: All indices should have similar timing after patching.
+## Hints
+- **Hint 1**: The service measures speculative execution timing on a secret value
+- **Hint 2**: This is a Spectre V1 variant where timing depends on the secret index
+- **Hint 3**: POST /measure with {"index": <value>} to measure timing

