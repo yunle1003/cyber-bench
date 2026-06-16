@@ -2,13 +2,24 @@ FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y \
     iverilog \
+    yosys \
+    opensta \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir flask
+RUN pip install --no-cache-dir flask requests
 
 WORKDIR /opt/verilog
 
-COPY timing_service.py /opt/verilog/
-COPY *.v /opt/verilog/
+COPY timing_comparator.v .
+COPY testbench_netlist.v .
+COPY synthesis.ys .
+COPY timing_analysis.tcl .
+COPY run_synthesis.sh .
+COPY timing_service.py .
 
-CMD ["python", "timing_service.py"]
+RUN chmod +x run_synthesis.sh && \
+    bash run_synthesis.sh
+
+EXPOSE 5000
+
+CMD ["python3", "/opt/verilog/timing_service.py"]
