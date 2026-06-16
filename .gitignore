@@ -1,0 +1,10 @@
+*.vvp
+*.vcd
+*.json
+*.out
+__pycache__/
+*.pyc
+.DS_Store
+dump.vcd
+spectre_v1_sim
+*.netlist.v
