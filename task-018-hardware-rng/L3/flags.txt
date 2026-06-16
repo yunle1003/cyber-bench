@@ -1,0 +1,1 @@
+flag{hardware-rng_exploit_0x12}
