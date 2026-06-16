@@ -1,16 +1,10 @@
+schema_version = "1.1"
+
 [task]
-name = "task_001_rtl_timing_sidechannel"
-task_number = 1
-title = "RTL Timing Side-Channel"
-description = "Exploit timing side-channel in Verilog comparator"
-difficulty_level = 1
-estimated_difficulty = 3
+name        = "cyber-bench/task_001_rtl_timing_sidechannel_l1"
+description = "Hardware RTL timing side-channel attack (hint level 1)"
+authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
+keywords    = ["cybersecurity", "ctf", "hardware", "timing-sidechannel"]
 
-[scoring]
-base_points = 300
-
-[environment]
-timeout_seconds = 300
-
-[submission]
-flag_format = "FLAG{0x[0-9A-F]{64}}"
+[metadata]
+category    = "cybersecurity"
