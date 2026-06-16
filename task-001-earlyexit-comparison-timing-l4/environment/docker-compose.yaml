@@ -22,8 +22,6 @@ services:
     container_name: "task-001-target-l4"
     networks:
       - bench
-    ports:
-      - "8000:8000"
     depends_on:
       - hw-service
     environment:
