@@ -2,16 +2,14 @@
 
 module testbench;
     reg clk, rst;
-    reg [31:0] protected_addr, attacker_addr;
-    wire [31:0] leaked_data;
+    reg [31:0] secret_addr, probe_addr;
     wire [15:0] access_time;
     
     meltdown dut (
         .clk(clk),
         .rst(rst),
-        .protected_addr(protected_addr),
-        .attacker_addr(attacker_addr),
-        .leaked_data(leaked_data),
+        .secret_addr(secret_addr),
+        .probe_addr(probe_addr),
         .access_time(access_time)
     );
     
@@ -22,8 +20,8 @@ module testbench;
     
     initial begin
         rst = 1;
-        protected_addr = 32'h00000042;
-        attacker_addr = 32'h00000000;
+        secret_addr = 32'h00000042;   // 秘密地址: 0x42
+        probe_addr = 32'h00000000;
         
         #10 rst = 0;
         #100;

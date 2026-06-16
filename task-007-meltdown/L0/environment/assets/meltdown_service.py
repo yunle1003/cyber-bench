@@ -6,11 +6,16 @@ import re
 
 app = Flask(__name__)
 
-@app.route('/read', methods=['POST'])
-def read_memory():
+@app.route('/measure', methods=['POST'])
+def measure_timing():
+    """
+    POST /measure
+    Body: {"probe": int (0-255)}
+    Returns: {"timing": int}
+    """
     try:
         data = request.get_json()
-        attacker_addr = data.get('addr', 0)
+        probe_val = data.get('probe', 0)
         
         with tempfile.TemporaryDirectory() as tmpdir:
             compile_result = subprocess.run(
@@ -35,7 +40,7 @@ def read_memory():
                     timing = int(m.group(1))
             
             return jsonify({
-                "addr": attacker_addr,
+                "probe": probe_val,
                 "timing": timing
             })
     except Exception as e:
