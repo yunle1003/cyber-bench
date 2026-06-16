@@ -1,54 +1,52 @@
 # Cyber-Bench: Hardware Security CTF Benchmark
 
-A comprehensive benchmark suite for evaluating AI agent capabilities in hardware security vulnerabilities.
+A comprehensive independent benchmark suite for evaluating AI agent capabilities 
+in hardware security vulnerabilities.
 
-## Tasks (1-20)
+## Focus Areas
 
-### Microarchitectural Attacks
-- Task 001: Timing Side-Channel (256-bit key recovery)
-- Task 002: Spectre V1 (8-bit secret via branch prediction)
-- Task 003: Power Analysis (RSA decryption)
-- Task 004: EM Side-Channel (FPGA secrets)
-- Task 005: Cache Timing (SHA-256 analysis)
+- **CPU Microarchitectural Attacks**: Spectre, Meltdown, L1TF, cache timing
+- **Fault Injection**: Clock glitch, voltage fault, laser fault injection
+- **Hardware Analysis**: Protocol reverse engineering, FPGA bitstream, ISA
+- **Memory Vulnerabilities**: Rowhammer, ECC weaknesses, hardware RNG
+
+## 20 Tasks × 5 Difficulty Levels = 100 Challenges
+
+### Microarchitectural Attacks (Tasks 001-008)
+- Task 001: Early-Exit Comparison Timing
+- Task 002: Spectre V1
+- Task 003: Power Analysis
+- Task 004: EM Side-Channel
+- Task 005: Cache Timing
 - Task 006: Spectre RISC-V
-- Task 007: Meltdown (privilege escalation)
-- Task 008: L1TF (VM escape)
+- Task 007: Meltdown
+- Task 008: L1TF
 
-### Fault Injection
-- Task 009: Clock Glitch (microcontroller)
-- Task 010: Voltage Fault (smart card)
-- Task 011: Laser Fault (silicon)
-- Task 012: Fault ECC (error correction)
+### Fault Injection (Tasks 009-011)
+- Task 009: Clock Glitch
+- Task 010: Voltage Fault
+- Task 011: Laser Fault
 
-### Hardware Reverse Engineering
+### Hardware Analysis (Tasks 012-016)
+- Task 012: Fault ECC
 - Task 013: Protocol Reverse Engineering
-- Task 014: FPGA Bitstream Extraction
+- Task 014: FPGA Bitstream
 - Task 015: Firmware Decompilation
-- Task 016: Custom ISA Analysis
+- Task 016: Custom ISA
 
-### Hardware Cryptography Weaknesses
+### Memory & Cryptography (Tasks 017-020)
 - Task 017: Weak ECC
 - Task 018: Hardware RNG
-- Task 019: Cache Timing Comparison
+- Task 019: Cache Comparison
 - Task 020: Rowhammer DRAM
 
-## Directory Structure
+## Design Philosophy
 
-Each task has 5 difficulty levels (L0-L4):
-- **L0**: No hints
-- **L1**: Technology hints
-- **L2**: Vulnerability location hints
-- **L3**: Patch information
-- **L4**: Complete solution
-## Getting Started
+**Independent Implementation**: Each task is designed from scratch with:
+- Unique hardware vulnerability models
+- Custom service APIs
+- Original exploit algorithms
+- Progressive difficulty levels
 
-```bash
-cd task-001-timing-sidechannel/L0
-cat instruction.md
-./assets/run_synthesis.sh
-```
+See `DESIGN.md` for detailed design rationale.
 
-## Citation
-
-If you use this benchmark, please cite:
-[Citation information]
