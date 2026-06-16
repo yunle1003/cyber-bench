@@ -1,16 +1,13 @@
 [task]
-name = "task-018-voltage-fault"
-task_number = 10
-title = "Voltage Fault"
-description = "Exploit voltage fault injection attack"
+name = "task-018-hardware-rng"
+task_number = 018
+title = "Hardware RNG"
 difficulty_level = 0
-hint_level = 0
 estimated_difficulty = 3
 [scoring]
 base_points = 300
 [environment]
 image_name = "cyber-bench-task-018:latest"
-image_tag = "latest"
 container_count = 1
 timeout_seconds = 300
 service_count = 1
