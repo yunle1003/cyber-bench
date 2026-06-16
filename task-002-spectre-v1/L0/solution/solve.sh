@@ -5,7 +5,7 @@ set -euo pipefail
 # This verifies the environment is wired correctly
 
 cat > /app/flags.txt << 'FLAGS'
-FLAG{DEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210_0000000000000000}
+flag{spectre_v1_timing_leak_secret_0x42}
 FLAGS
 
 echo "Flag written to /app/flags.txt"
