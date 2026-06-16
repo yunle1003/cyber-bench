@@ -1,0 +1,10 @@
+schema_version = "1.1"
+
+[task]
+name        = "cyber-bench/task_017_weak-ecc_l3"
+description = "Weak ECC (hint level 3)"
+authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
+keywords    = ["cybersecurity", "ctf", "hardware"]
+
+[metadata]
+category    = "cybersecurity"

@@ -1,0 +1,10 @@
+schema_version = "1.1"
+
+[task]
+name        = "cyber-bench/task_012_fault-ecc_l4"
+description = "Fault ECC (hint level 4)"
+authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
+keywords    = ["cybersecurity", "ctf", "hardware"]
+
+[metadata]
+category    = "cybersecurity"
