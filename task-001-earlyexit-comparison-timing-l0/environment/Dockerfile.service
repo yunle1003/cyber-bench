@@ -1,16 +1,10 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y \
-    iverilog \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-WORKDIR /opt
+RUN pip install flask requests
 
-RUN pip install --no-cache-dir flask
+COPY assets/service.py /app/service.py
+COPY assets/testbench.v /app/testbench.v
 
-COPY assets/service.py /opt/
-COPY assets/*.v /opt/assets/
-
-EXPOSE 5000
-
-CMD ["python3", "service.py"]
+CMD ["python3", "/app/service.py"]
