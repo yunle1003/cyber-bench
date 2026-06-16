@@ -1,1 +1,0 @@
-flag{l1tf_exploit_0x08}

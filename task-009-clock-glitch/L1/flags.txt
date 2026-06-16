@@ -1,1 +1,0 @@
-flag{clock-glitch_exploit_0x09}

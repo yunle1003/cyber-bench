@@ -1,1 +1,0 @@
-flag{cache_flush_reload_secret_0x42}

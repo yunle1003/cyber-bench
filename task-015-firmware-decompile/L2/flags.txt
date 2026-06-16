@@ -1,1 +1,0 @@
-flag{firmware-decompile_exploit_0x0f}
