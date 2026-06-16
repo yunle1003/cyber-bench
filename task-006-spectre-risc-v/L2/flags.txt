@@ -1,1 +1,0 @@
-flag{spectre_riscv_secret_0xef}
