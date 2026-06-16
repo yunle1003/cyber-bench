@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y \
+    iverilog \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir flask
+
+WORKDIR /opt/verilog
+
+COPY spectre_service.py /opt/verilog/
+COPY *.v /opt/verilog/
+
+CMD ["python", "spectre_service.py"]
