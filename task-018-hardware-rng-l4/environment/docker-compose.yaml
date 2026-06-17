@@ -1,58 +1,37 @@
 version: '3.8'
 
 services:
-  gateway:
-    image: cyberbench/gateway:latest
-    container_name: gateway
-    ports:
-      - "8000:8000"
-    networks:
-      - benchmark
-    environment:
-      - AGENT_HOST=agent
-      - TARGET_HOST=target
+  main:
+    build:
+      context: "."
+    command: ["sh", "-c", "sleep infinity"]
     depends_on:
-      - agent
-      - target
-
-  agent:
-    image: cyberbench/agent:latest
-    container_name: agent
+      target:
+        condition: "service_started"
     networks:
-      - benchmark
-    environment:
-      - TARGET_HOST=target
-      - GATEWAY_HOST=gateway
-    depends_on:
-      - target
-    command: sleep infinity
+      - "bench"
 
   target:
-    image: cyberbench/runtime:latest
-    container_name: target
-    networks:
-      - benchmark
+    image: "python:3.12"
+    command: ["python", "/opt/cyberbench/gateway.py"]
     environment:
-      - HW_SERVICE_HOST=hw-service
-      - HW_SERVICE_PORT=5000
+      CYBERBENCH_GATEWAY_MAP: '{"8101": {"host": "hw-task-018-svc", "port": 5000}}'
+    volumes:
+      - "./environment/gateway.py:/opt/cyberbench/gateway.py:ro"
     depends_on:
-      - hw-service
-    expose:
-      - "8000"
-
-  hw-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.service
-    container_name: hw-service
+      - "hw-task-018-svc"
     networks:
-      - benchmark
+      - "bench"
+
+  hw-task-018-svc:
+    build:
+      context: "./environment"
+      dockerfile: "Dockerfile.service"
     expose:
       - "5000"
-    environment:
-      - PYTHONUNBUFFERED=1
+    networks:
+      - "bench"
 
 networks:
-  benchmark:
-    driver: bridge
+  bench:
     internal: true

@@ -1,103 +1,69 @@
 #!/usr/bin/env python3
-"""
-Harbor Gateway - Routes requests between Agent and Hardware Service
-"""
+"""TCP Proxy Gateway - jiarao76 style"""
+from __future__ import annotations
 
-from flask import Flask, request, jsonify, Response
-import requests
+import asyncio
+import json
 import os
-import logging
+import sys
 
-app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-# 取得環境變數
-HW_SERVICE_HOST = os.getenv('HW_SERVICE_HOST', 'hw-service')
-HW_SERVICE_PORT = os.getenv('HW_SERVICE_PORT', '5000')
-HW_SERVICE_URL = f"http://{HW_SERVICE_HOST}:{HW_SERVICE_PORT}"
-
-@app.route('/health', methods=['GET'])
-def health():
-    """健康檢查"""
+async def pipe(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+    """雙向轉發數據流"""
     try:
-        # 檢查 hw-service 是否可用
-        resp = requests.get(f"{HW_SERVICE_URL}/health", timeout=2)
-        return jsonify({
-            "status": "ok",
-            "hw_service": resp.status_code == 200
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "error": str(e)
-        }), 500
+        while chunk := await reader.read(65536):
+            writer.write(chunk)
+            await writer.drain()
+    finally:
+        writer.close()
+        await writer.wait_closed()
 
-@app.route('/measure', methods=['POST'])
-def measure():
-    """
-    代理請求到 hw-service
-    Agent 發送 /measure 請求 → Gateway 轉發 → hw-service 處理 → 返回結果
-    """
+
+async def handle_client(
+    client_reader: asyncio.StreamReader,
+    client_writer: asyncio.StreamWriter,
+    upstream_host: str,
+    upstream_port: int,
+) -> None:
+    """處理單個客戶端連接"""
     try:
-        data = request.get_json()
-        
-        # 轉發請求到 hw-service
-        logger.info(f"Forwarding request to {HW_SERVICE_URL}/measure")
-        resp = requests.post(
-            f"{HW_SERVICE_URL}/measure",
-            json=data,
-            timeout=30
-        )
-        
-        # 返回結果
-        return Response(
-            response=resp.content,
-            status=resp.status_code,
-            content_type=resp.headers.get('content-type', 'application/json')
-        )
+        upstream_reader, upstream_writer = await asyncio.open_connection(upstream_host, upstream_port)
+    except OSError:
+        client_writer.close()
+        await client_writer.wait_closed()
+        return
     
-    except requests.exceptions.Timeout:
-        logger.error("hw-service 超時")
-        return jsonify({"error": "hw-service timeout"}), 504
-    except requests.exceptions.ConnectionError:
-        logger.error(f"無法連接到 hw-service: {HW_SERVICE_URL}")
-        return jsonify({"error": "hw-service unavailable"}), 503
-    except Exception as e:
-        logger.error(f"Error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+    await asyncio.gather(
+        pipe(client_reader, upstream_writer),
+        pipe(upstream_reader, client_writer),
+        return_exceptions=True,
+    )
 
-@app.route('/submit', methods=['POST'])
-def submit():
-    """
-    提交 exploit 結果
-    """
+
+async def main() -> None:
+    """主程序 - 從環境變數讀取埠映射"""
+    raw_map = os.environ.get("CYBERBENCH_GATEWAY_MAP")
+    if not raw_map:
+        raise SystemExit("CYBERBENCH_GATEWAY_MAP is required")
+    
+    port_map = json.loads(raw_map)
+    servers = []
+    
+    for listen_port, upstream in port_map.items():
+        host, port = upstream["host"], int(upstream["port"])
+        server = await asyncio.start_server(
+            lambda reader, writer, host=host, port=port: handle_client(reader, writer, host, port),
+            "0.0.0.0",
+            int(listen_port),
+        )
+        servers.append(server)
+        print(f"forwarding :{listen_port} -> {host}:{port}", flush=True)
+    
+    await asyncio.gather(*(server.serve_forever() for server in servers))
+
+
+if __name__ == "__main__":
     try:
-        data = request.get_json()
-        flag = data.get('flag', '')
-        
-        # 這裡可以添加 flag 驗證邏輯
-        logger.info(f"Flag submitted: {flag}")
-        
-        return jsonify({
-            "success": True,
-            "message": "Flag submitted"
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-@app.route('/', methods=['GET'])
-def index():
-    """首頁"""
-    return jsonify({
-        "service": "Harbor Gateway",
-        "endpoints": {
-            "/health": "Health check",
-            "/measure": "Measure request (POST)",
-            "/submit": "Submit flag (POST)"
-        }
-    })
-
-if __name__ == '__main__':
-    logger.info(f"Gateway starting, hw-service at {HW_SERVICE_URL}")
-    app.run(host='0.0.0.0', port=8000, debug=False)
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        sys.exit(0)
