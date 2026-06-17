@@ -12,6 +12,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir requests flask
 
 COPY assets/ /opt/assets/
+RUN rm -f /opt/assets/flag.txt
 COPY docker-compose.yaml /opt/
 
 CMD ["sleep", "infinity"]

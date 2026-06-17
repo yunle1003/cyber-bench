@@ -10,7 +10,7 @@ def check_flag():
             flag = f.read().strip()
         
         # 驗證格式
-        if not re.match(r'^FLAG\{0x[0-9A-F]{64}\}$', flag):
+        if not re.match(r'^FLAG\{[0-9A-F]{64}\}$', flag):
             print(f"[-] Invalid flag format: {flag}")
             return False
         
