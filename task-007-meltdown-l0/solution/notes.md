@@ -1,24 +1,16 @@
-# Solution Notes
+# Secure Boot Integer Overflow - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`secure_boot.v` has an 8-bit overflow in the length check:
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
+```verilog
+wire [7:0] len_plus_one = sig_len + 8'h01;  // wraps at 255!
+wire       overflow_ok  = (len_plus_one == 8'h00);  // true when sig_len=255
+assign boot_granted = sig_valid || overflow_ok;
+```
 
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack Method
+1. Read `/opt/assets/secure_boot.v` and find the overflow condition
+2. Send `sig_len=255`: `255 + 1 = 0` (mod 256), passes the `== 0` check
+3. POST `{"sig_len": 255, "sig_byte": 0}` to `http://target:8101/verify`
+4. Response includes `"boot_granted": true` and `"flag"`

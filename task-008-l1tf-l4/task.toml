@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_008_008_l1tf_l4"
-description = "L1TF Attack (Level 4)"
+name        = "cyber-bench/task_008_008_hw_mpu_oob_l4"
+description = "MPU Address Decode Off-by-One (Level 4)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "rtl", "netlist", "asic"]
 bundle_id   = "hw-task-008"

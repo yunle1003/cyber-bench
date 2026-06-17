@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_020_020_rowhammer_l2"
-description = "Rowhammer Attack (Level 2)"
+name        = "cyber-bench/task_020_020_hw_aes_debug_backdoor_l2"
+description = "AES Debug Backdoor (Level 2)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "rtl", "netlist", "asic"]
 bundle_id   = "hw-task-020"

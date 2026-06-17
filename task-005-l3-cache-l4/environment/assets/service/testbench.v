@@ -1,38 +1,35 @@
-\`timescale 1ns/1ps
-
-\`ifndef SECRET_KEY
-  \`define SECRET_KEY 256'h0
-\`endif
-
-`timescale 1ns / 1ps
-
+`timescale 1ns/1ps
 module testbench;
     reg clk, rst;
-    reg [255:0] secret_key, input_key;
-    wire [8:0] timing_out;
+    reg [2:0] cmd;
+    wire access_granted, backdoor_active;
 
-    timing_comparator dut (
-        .clk(clk),
-        .rst(rst),
-        .secret_key(secret_key),
-        .input_key(input_key),
-        .timing_out(timing_out)
-    );
+    fsm_secure dut(.clk(clk),.rst(rst),.cmd(cmd),
+                   .access_granted(access_granted),
+                   .backdoor_active(backdoor_active));
+
+    initial clk = 0;
+    always #5 clk = ~clk;
+
+    integer any_backdoor = 0;
+    integer any_access   = 0;
+
+    task send_cmd;
+        input [2:0] c;
+        begin
+            cmd = c; @(posedge clk); #1;
+            if (backdoor_active) any_backdoor = 1;
+            if (access_granted)  any_access   = 1;
+        end
+    endtask
 
     initial begin
-        clk = 0;
-        forever #5 clk = ~clk;
-    end
-
-    initial begin
-        rst = 1;
-        secret_key = 256'h0005DEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
-        input_key = 256'h0;
-
-        #20 rst = 0;
-        #100;
-
-        $display("TIMING:%d", timing_out);
-        #10 $finish;
+        rst = 1; cmd = 0;
+        #15 rst = 0;
+        send_cmd(`CMD1);
+        send_cmd(`CMD2);
+        $display("ACCESS:%0d",   any_access);
+        $display("BACKDOOR:%0d", any_backdoor);
+        $finish;
     end
 endmodule

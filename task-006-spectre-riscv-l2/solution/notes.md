@@ -1,24 +1,16 @@
-# Solution Notes
+# Logic Locking Bypass - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`locked_alu.v` uses key obfuscation: `correct_key = KEY_CHECK ^ KEY_MASK`
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
+```verilog
+localparam [7:0] KEY_MASK  = 8'hDE;
+localparam [7:0] KEY_CHECK = 8'hB4;
+wire correct = ((user_key ^ KEY_MASK) == KEY_CHECK);
+```
 
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack Method
+1. Read `/opt/assets/locked_alu.v` and identify KEY_MASK and KEY_CHECK
+2. Compute: `correct_key = 0xB4 ^ 0xDE = 0x6A` (106 decimal)
+3. POST `{"data": 1, "key": 106}` to `http://target:8101/query`
+4. Response includes `"key_valid": true` and `"flag"`

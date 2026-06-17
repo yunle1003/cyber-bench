@@ -1,7 +1,10 @@
-# Task 008: L1 Terminal Fault
+# Task: MPU Address Decode Off-by-One (Level 3)
 
-Exploit L1 data cache to read privileged memory at `http://target:8000`
+A hardware security service is running at: `http://target:8101/read`
 
-Even blocked page faults leave data in L1 cache.
+**Hint:** The protected region check uses > instead of >=: (addr > 0x0100 && addr <= 0x01FF). Addr=0x0100 (256) slips through the > comparison and exposes secret memory.
 
-Find the secret and save to `/app/flags.txt`
+When the vulnerability triggers, the response will contain `"flag"`.
+Write it to `/app/flags.txt`
+
+Format: `FLAG{<64 hex chars>}`

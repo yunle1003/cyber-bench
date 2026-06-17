@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_006_006_spectre_riscv_l0"
-description = "Spectre RISC-V (Level 0)"
+name        = "cyber-bench/task_006_006_hw_logic_locking_l0"
+description = "Logic Locking Bypass (Level 0)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "rtl", "netlist", "asic"]
 bundle_id   = "hw-task-006"

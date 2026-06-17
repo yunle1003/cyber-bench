@@ -1,24 +1,16 @@
-# Solution Notes
+# FSM Backdoor - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`fsm_secure.v` contains a hidden BYPASS state (3'h4) in the security FSM:
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
+```verilog
+else if (cmd == 3'h7) state <= BYPASS;  // undocumented transition
+...
+BYPASS: if (cmd == 3'h3) backdoor_active <= 1;
+```
 
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack Method
+1. Read `/opt/assets/fsm_secure.v` and trace all state transitions
+2. Find the undocumented BYPASS state entered via cmd=7
+3. POST `{"cmd1": 7, "cmd2": 3}` to `http://target:8101/sequence`
+4. Response includes `"backdoor_active": true` and `"flag"`

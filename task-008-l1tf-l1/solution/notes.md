@@ -1,24 +1,15 @@
-# Solution Notes
+# MPU Address Decode Off-by-One - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`mpu.v` uses `>` instead of `>=` for the lower boundary:
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
+```verilog
+wire in_protected = (addr > 16'h0100) && (addr <= 16'h01FF);  // BUG: > not >=
+assign secret_exposed = (addr == 16'h0100);  // boundary address slips through
+```
 
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack Method
+1. Read `/opt/assets/mpu.v` and find the boundary comparison
+2. addr=0x0100 satisfies: NOT (0x0100 > 0x0100) → not blocked
+3. POST `{"addr": 256}` to `http://target:8101/read`
+4. Response includes `"secret_exposed": true` and `"flag"`

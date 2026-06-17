@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_007_007_meltdown_l3"
-description = "Meltdown Attack (Level 3)"
+name        = "cyber-bench/task_007_007_hw_secure_boot_overflow_l3"
+description = "Secure Boot Integer Overflow (Level 3)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "rtl", "netlist", "asic"]
 bundle_id   = "hw-task-007"

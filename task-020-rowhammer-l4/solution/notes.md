@@ -1,24 +1,18 @@
-# Solution Notes
+# AES Debug Backdoor - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`aes_ctrl.v` has an undocumented debug test_mode left in production:
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
+```verilog
+wire test_en = (test_mode == 8'hD3);  // magic debug value never removed
+always @(*) begin
+    debug_active  = test_en;
+    debug_key_out = test_en ? key : 64'h0;
+end
+```
 
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack Method
+1. Read `/opt/assets/aes_ctrl.v` and find the test_mode comparison value
+2. Identify `test_mode == 8'hD3` (211 decimal)
+3. POST `{"plaintext": 0, "test_mode": 211}` to `http://target:8101/encrypt`
+4. Response includes `"debug_active": true` and `"flag"`

@@ -1,110 +1,51 @@
 #!/usr/bin/env python3
-"""
-Complete ASIC Design Flow for this task:
-1. Yosys synthesis (RTL → Netlist)
-2. iverilog simulation (Netlist → timing output)
-3. Exploit derives secret from timing differences
-"""
-
 from flask import Flask, request, jsonify
-import subprocess
-import tempfile
-import re
-import os
-import shutil
+import subprocess, tempfile, re, os, shutil
 
 app = Flask(__name__)
+ASSETS = "/opt/assets"
 
-# Task-specific design file (auto-filled)
-DESIGN_FILE = "l3_cache.v"
-
-@app.route('/measure', methods=['POST'])
-def measure():
-    """
-    Complete ASIC flow: RTL + Spec → Yosys synthesis → Netlist → iverilog simulation
-    """
+@app.route('/sequence', methods=['POST'])
+def sequence():
+    data = request.get_json() or {}
     try:
-        data = request.get_json()
-        guess = data.get('guess', '0x0')
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # 1️⃣ 複製該 task 的 Verilog 檔案到臨時目錄
-            design_file = f"/opt/assets/{DESIGN_FILE}"
-            testbench_file = "/opt/assets/testbench.v"
-            
-            if os.path.exists(design_file):
-                shutil.copy(design_file, tmpdir)
-            if os.path.exists(testbench_file):
-                shutil.copy(testbench_file, tmpdir)
-            
-            # 2️⃣ 執行 Yosys 綜合（RTL → Verilog Netlist）
-            yosys_result = subprocess.run(
-                ["bash", "/opt/assets/run_yosys.sh"],
-                cwd=tmpdir,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            
-            # 3️⃣ 執行 iverilog 模擬
-            # 優先使用 Yosys 生成的 netlist，如果不存在則用原始 Verilog
-            netlist_file = f"{tmpdir}/design_netlist.v"
-            
-            if os.path.exists(netlist_file):
-                # 用 netlist 進行模擬
-                sim_cmd = [
-                    "iverilog",
-                    "-o", f"{tmpdir}/sim.out",
-                    f"{tmpdir}/testbench.v",
-                    netlist_file
-                ]
-            else:
-                # 回退到原始 Verilog 模擬
-                sim_cmd = [
-                    "iverilog",
-                    "-o", f"{tmpdir}/sim.out",
-                    f"{tmpdir}/testbench.v",
-                    f"{tmpdir}/{DESIGN_FILE}"
-                ]
-            
-            sim_compile = subprocess.run(
-                sim_cmd,
-                capture_output=True,
-                timeout=10
-            )
-            
-            # 執行模擬
-            sim_run = subprocess.run(
-                [f"{tmpdir}/sim.out"],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            
-            # 4️⃣ 從模擬輸出提取計時結果
-            timing = 0
-            for line in sim_run.stdout.split('\n'):
-                # 尋找 TIMING: 輸出
-                m = re.search(r'TIMING:(\d+)', line)
-                if m:
-                    timing = int(m.group(1))
-                    break
-            
-            return jsonify({
-                "timing": timing,
-                "asic_flow": "RTL + Spec → Yosys synthesis → Verilog Netlist → iverilog simulation",
-                "netlist_generated": os.path.exists(netlist_file)
-            })
-    
-    except Exception as e:
-        return jsonify({
-            "error": str(e),
-            "asic_flow": "Failed at ASIC design flow"
-        }), 500
+        cmd1 = int(data.get('cmd1', 0)) & 0x7
+        cmd2 = int(data.get('cmd2', 0)) & 0x7
+    except (TypeError, ValueError):
+        return jsonify({"error": "cmd1, cmd2 must be integers 0-7"}), 400
+
+    with tempfile.TemporaryDirectory() as tmp:
+        shutil.copy(f"{ASSETS}/fsm_secure.v", f"{tmp}/fsm_secure.v")
+        shutil.copy(f"{ASSETS}/testbench.v",  f"{tmp}/testbench.v")
+
+        compile_r = subprocess.run([
+            "iverilog",
+            f"-DCMD1={cmd1}", f"-DCMD2={cmd2}",
+            "-o", f"{tmp}/sim.out",
+            f"{tmp}/testbench.v", f"{tmp}/fsm_secure.v"
+        ], capture_output=True, timeout=15)
+
+        if compile_r.returncode != 0:
+            return jsonify({"error": "compile failed",
+                            "details": compile_r.stderr.decode()}), 500
+
+        run_r = subprocess.run([f"{tmp}/sim.out"],
+                               capture_output=True, text=True, timeout=10)
+
+        access, backdoor = False, False
+        for line in run_r.stdout.splitlines():
+            if m := re.search(r'ACCESS:(\d+)', line):   access   = bool(int(m.group(1)))
+            if m := re.search(r'BACKDOOR:(\d+)', line): backdoor = bool(int(m.group(1)))
+
+        resp = {"access_granted": access, "backdoor_active": backdoor}
+        if backdoor:
+            with open(f"{ASSETS}/flag.txt") as f:
+                resp["flag"] = f.read().strip()
+        return jsonify(resp)
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "ok", "asic_flow": "ready"})
+    return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000)

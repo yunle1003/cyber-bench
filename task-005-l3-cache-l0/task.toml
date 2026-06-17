@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_005_005_l3_cache_l0"
-description = "L3 Cache Attack (Level 0)"
+name        = "cyber-bench/task_005_005_hw_fsm_backdoor_l0"
+description = "FSM Backdoor (Level 0)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "rtl", "netlist", "asic"]
 bundle_id   = "hw-task-005"
