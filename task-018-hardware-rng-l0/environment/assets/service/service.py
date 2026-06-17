@@ -16,7 +16,7 @@ import shutil
 app = Flask(__name__)
 
 # Task-specific design file (auto-filled)
-DESIGN_FILE = "DESIGN_FILE_PLACEHOLDER"
+DESIGN_FILE = "hardware_rng.v"
 
 @app.route('/measure', methods=['POST'])
 def measure():
