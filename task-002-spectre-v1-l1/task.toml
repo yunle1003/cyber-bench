@@ -1,8 +1,8 @@
 schema_version = "1.1"
 
 [task]
-name        = "cyber-bench/task_002_002_spectre_v1_l1"
-description = "Spectre V1 Attack (Level 1)"
+name        = "cyber-bench/task_002_002_hw_trojan_l1"
+description = "Hardware Trojan Detection (Level 1)"
 authors     = [{ name = "Cyber-Bench Hardware", email = "devnull@example.invalid" }]
 keywords    = ["cybersecurity", "ctf", "hardware", "rtl", "netlist", "asic"]
 bundle_id   = "hw-task-002"
