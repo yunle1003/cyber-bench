@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-RUN rm -rf /tests /solution
 
 RUN pip install --no-cache-dir requests flask
 
