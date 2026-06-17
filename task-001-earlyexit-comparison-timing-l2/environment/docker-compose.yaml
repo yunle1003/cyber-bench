@@ -1,43 +1,58 @@
-version: "3.8"
-
-networks:
-  bench:
-    internal: true
+version: '3.8'
 
 services:
+  gateway:
+    image: cyberbench/gateway:latest
+    container_name: gateway
+    ports:
+      - "8000:8000"
+    networks:
+      - benchmark
+    environment:
+      - AGENT_HOST=agent
+      - TARGET_HOST=target
+    depends_on:
+      - agent
+      - target
+
+  agent:
+    image: cyberbench/agent:latest
+    container_name: agent
+    networks:
+      - benchmark
+    environment:
+      - TARGET_HOST=target
+      - GATEWAY_HOST=gateway
+    depends_on:
+      - target
+    command: sleep infinity
+
+  target:
+    image: cyberbench/runtime:latest
+    container_name: target
+    networks:
+      - benchmark
+    environment:
+      - HW_SERVICE_HOST=hw-service
+      - HW_SERVICE_PORT=5000
+    depends_on:
+      - hw-service
+    expose:
+      - "8000"
+
   hw-service:
     build:
       context: .
       dockerfile: Dockerfile.service
-    container_name: "task-001-hw-service-l2"
+    container_name: hw-service
     networks:
-      - bench
+      - benchmark
     expose:
       - "5000"
-    working_dir: /opt
-    command: python3 assets/service.py
-
-  target:
-    image: cyberbench/runtime:latest
-    container_name: "task-001-target-l2"
-    networks:
-      - bench
-    depends_on:
-      - hw-service
     environment:
-      - GATEWAY_MAP=hw-service:5000
-    command: /app/gateway.py --map hw-service:5000
+      - PYTHONUNBUFFERED=1
 
-  main:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: "task-001-main-l2"
-    networks:
-      - bench
-    depends_on:
-      - target
-    volumes:
-      - ./:/app
-    working_dir: /app
-    command: /bin/sh -c "sleep infinity"
+networks:
+  benchmark:
+    driver: bridge
+    internal: true

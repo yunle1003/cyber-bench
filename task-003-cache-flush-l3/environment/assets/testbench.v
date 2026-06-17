@@ -20,7 +20,7 @@ module testbench;
 
     initial begin
         rst = 1;
-        secret_key = 256'hDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
+        secret_key = 256'h0003DEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
         input_key = 256'h0;
 
         #20 rst = 0;
