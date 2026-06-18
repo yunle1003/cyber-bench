@@ -3,7 +3,7 @@ import re, shutil, subprocess, tempfile
 from flask import Flask, request, jsonify
 app = Flask(__name__)
 ASSETS = "/opt/assets"
-EXPECTED_SECRET = 0xDEADC0DE
+EXPECTED_SECRET = 0x7F3A8B2E
 
 @app.route('/execute', methods=['POST'])
 def query():

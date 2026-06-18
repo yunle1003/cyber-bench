@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 ASSETS = "/opt/assets"
 # Assembled secret: instructions at pc=0,1,2 concatenated
-EXPECTED_SECRET = 0xDEADBEEFCAFEBABEDEADC0DE
+EXPECTED_SECRET = 0xA4B3C2D1F5E6D7C81A2B3C4D
 
 @app.route('/read', methods=['POST'])
 def query():
