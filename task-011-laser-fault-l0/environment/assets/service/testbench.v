@@ -1,38 +1,18 @@
-\`timescale 1ns/1ps
-
-\`ifndef SECRET_KEY
-  \`define SECRET_KEY 256'h0
-\`endif
-
-`timescale 1ns / 1ps
-
+`timescale 1ns/1ps
+`ifndef LASER
+`define LASER 0
+`endif
 module testbench;
-    reg clk, rst;
-    reg [255:0] secret_key, input_key;
-    wire [8:0] timing_out;
-
-    timing_comparator dut (
-        .clk(clk),
-        .rst(rst),
-        .secret_key(secret_key),
-        .input_key(input_key),
-        .timing_out(timing_out)
-    );
-
+    reg clk, rst, laser_pulse;
+    reg [7:0] secret;
+    wire [7:0] result;
+    laser_fault dut(.clk(clk),.rst(rst),.laser_pulse(laser_pulse),.secret(secret),.result(result));
+    initial clk = 0; always #5 clk = ~clk;
     initial begin
-        clk = 0;
-        forever #5 clk = ~clk;
-    end
-
-    initial begin
-        rst = 1;
-        secret_key = 256'h000BDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
-        input_key = 256'h0;
-
-        #20 rst = 0;
-        #100;
-
-        $display("TIMING:%d", timing_out);
-        #10 $finish;
+        rst = 1; laser_pulse = `LASER; secret = 8'hC3;
+        #20 rst = 0; #50;
+        $display("RESULT:%0d", result);
+        $display("LASER:%0d", laser_pulse);
+        $finish;
     end
 endmodule

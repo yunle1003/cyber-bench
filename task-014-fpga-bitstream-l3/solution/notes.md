@@ -1,24 +1,9 @@
-# Solution Notes
+# FPGA Bitstream Recovery - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`fpga.v`: ROM stores bitstream bytes at sequential addresses.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+1. Read /read with addr=0,1,2,3 → 0xCA, 0xFE, 0xBA, 0xBE
+2. Assemble: 0xCAFEBABE
+3. POST {"bitstream": 3405691582} to /verify

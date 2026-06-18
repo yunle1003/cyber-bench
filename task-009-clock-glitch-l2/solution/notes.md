@@ -1,24 +1,7 @@
-# Solution Notes
+# Clock Glitch - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`clock_glitch.v`: when glitch_pulse=1, the counter increment is skipped and result=secret.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+POST {"glitch": 1} to /glitch. The service detects result>0 and returns flag.

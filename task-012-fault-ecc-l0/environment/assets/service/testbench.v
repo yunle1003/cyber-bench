@@ -1,38 +1,21 @@
-\`timescale 1ns/1ps
-
-\`ifndef SECRET_KEY
-  \`define SECRET_KEY 256'h0
-\`endif
-
-`timescale 1ns / 1ps
-
+`timescale 1ns/1ps
+`ifndef FAULT
+`define FAULT 0
+`endif
+`ifndef DATA
+`define DATA 0
+`endif
 module testbench;
-    reg clk, rst;
-    reg [255:0] secret_key, input_key;
-    wire [8:0] timing_out;
-
-    timing_comparator dut (
-        .clk(clk),
-        .rst(rst),
-        .secret_key(secret_key),
-        .input_key(input_key),
-        .timing_out(timing_out)
-    );
-
+    reg clk, rst, fault_inject;
+    reg [15:0] data;
+    wire fault_detected;
+    fault_ecc dut(.clk(clk),.rst(rst),.fault_inject(fault_inject),.data(data),.fault_detected(fault_detected));
+    initial clk = 0; always #5 clk = ~clk;
     initial begin
-        clk = 0;
-        forever #5 clk = ~clk;
-    end
-
-    initial begin
-        rst = 1;
-        secret_key = 256'h000CDEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
-        input_key = 256'h0;
-
-        #20 rst = 0;
-        #100;
-
-        $display("TIMING:%d", timing_out);
-        #10 $finish;
+        rst = 1; fault_inject = `FAULT; data = `DATA;
+        #20 rst = 0; #50;
+        $display("FAULT_DETECTED:%0d", fault_detected);
+        $display("INJECTED:%0d", fault_inject);
+        $finish;
     end
 endmodule

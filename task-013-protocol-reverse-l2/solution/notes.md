@@ -1,24 +1,9 @@
-# Solution Notes
+# Protocol Reverse Engineering - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`protocol.v`: lookup table maps cmd → secret byte. Four cmds (0-3) reveal all bytes.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+1. Query /cmd with cmd=0,1,2,3 to collect 4 bytes (0xDE, 0xAD, 0xBE, 0xEF)
+2. Assemble big-endian: 0xDEADBEEF
+3. POST {"secret": 3735928559} to /verify to get flag

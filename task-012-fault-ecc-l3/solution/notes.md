@@ -1,24 +1,8 @@
-# Solution Notes
+# Fault ECC Bypass - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`fault_ecc.v`: fault_inject=1 forces fault_detected=1 regardless of data parity.
+The ECC check can be bypassed by directly asserting the fault signal.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+POST {"fault": 1, "data": 0} to /inject. Service detects both signals → flag.

@@ -1,24 +1,9 @@
-# Solution Notes
+# Custom ISA Reverse Engineering - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`custom_isa.v`: undocumented instruction set maps opcode → byte value.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+1. Execute opcodes 0,1,2,3 → 0xDE, 0xAD, 0xC0, 0xDE
+2. Assemble: 0xDEADC0DE
+3. POST {"assembled": 3735881950} to /verify

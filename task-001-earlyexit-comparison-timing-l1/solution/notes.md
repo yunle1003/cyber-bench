@@ -1,24 +1,9 @@
-# Solution Notes
+# Timing Side-Channel - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`timing_comparator.v`: early-exit loop counts matching prefix bits.
+Returns `timing_out` = number of leading bits that match.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+Binary search over 256 bits: for each position, test if bit=1 gives higher timing.
+256 oracle queries to recover full 256-bit key.

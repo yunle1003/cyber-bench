@@ -1,38 +1,17 @@
-\`timescale 1ns/1ps
-
-\`ifndef SECRET_KEY
-  \`define SECRET_KEY 256'h0
-\`endif
-
-`timescale 1ns / 1ps
-
+`timescale 1ns/1ps
+`ifndef GUESS
+`define GUESS 0
+`endif
 module testbench;
     reg clk, rst;
-    reg [255:0] secret_key, input_key;
-    wire [8:0] timing_out;
-
-    timing_comparator dut (
-        .clk(clk),
-        .rst(rst),
-        .secret_key(secret_key),
-        .input_key(input_key),
-        .timing_out(timing_out)
-    );
-
+    reg [7:0] secret, guess;
+    wire [15:0] power_out;
+    em_sidechannel dut(.clk(clk),.rst(rst),.secret(secret),.guess(guess),.power_out(power_out));
+    initial clk = 0; always #5 clk = ~clk;
     initial begin
-        clk = 0;
-        forever #5 clk = ~clk;
-    end
-
-    initial begin
-        rst = 1;
-        secret_key = 256'h0004DEADBEEFCAFEBABE0123456789ABCDEFFEDCBA9876543210;
-        input_key = 256'h0;
-
-        #20 rst = 0;
-        #100;
-
-        $display("TIMING:%d", timing_out);
-        #10 $finish;
+        rst = 1; secret = 8'h37; guess = `GUESS;
+        #20 rst = 0; #50;
+        $display("POWER:%0d", power_out);
+        $finish;
     end
 endmodule

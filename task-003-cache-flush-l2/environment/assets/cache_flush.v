@@ -1,33 +1,23 @@
 `timescale 1ns / 1ps
 
+// Cache Flush+Reload timing oracle
+// VULNERABILITY: timing_out leaks whether guess == secret
+// Cache hit (guess==secret) → 50 cycles; miss → 500 cycles
 module cache_flush_reload (
-    input clk,
-    input rst,
+    input       clk,
+    input       rst,
     input [7:0] secret,
     input [7:0] guess,
     output reg [15:0] timing_out
 );
-    
-    reg [15:0] cycles;
-    reg cached;
-    
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            cycles <= 0;
-            cached <= 0;
+            timing_out <= 0;
         end else begin
-            cycles <= 0;
-            // 模擬 cache flush + reload
-            if (guess == secret) begin
-                // 秘密匹配，緩存命中（快）
-                cycles <= 50;
-                cached <= 1;
-            end else begin
-                // 秘密不匹配，緩存未命中（慢）
-                cycles <= 500;
-                cached <= 0;
-            end
+            if (guess == secret)
+                timing_out <= 50;   // cache hit (fast)
+            else
+                timing_out <= 500;  // cache miss (slow)
         end
     end
-
 endmodule

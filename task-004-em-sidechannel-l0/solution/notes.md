@@ -1,24 +1,8 @@
-# Solution Notes
+# EM Side-Channel - Solution Notes
 
-## Approach
-This is a hardware security CTF challenge at difficulty level.
+## Vulnerability
+`em_sidechannel.v`: power_out = 100 * (number of matching bits between secret and guess).
+Max power=800 means all 8 bits match.
 
-## Key Concepts
-- Hardware vulnerabilities exploitation
-- RTL analysis and understanding
-- Side-channel attacks
-
-## Solution Strategy
-1. Understand the service interface
-2. Identify the vulnerability
-3. Develop exploitation strategy
-4. Extract the flag
-
-## Tools & Techniques
-- Verilog RTL analysis
-- Hardware simulation
-- Protocol reverse engineering
-
-## References
-- Hardware security best practices
-- CTF write-up methodology
+## Attack
+Brute-force 256 values or use bit-flip attack: power oracle reveals hamming similarity.
